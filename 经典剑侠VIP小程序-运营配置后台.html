@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>经典剑侠系列VIP小程序 · 运营配置后台</title>
+<style>
+  :root {
+    --primary: #0052d9;
+    --primary-hover: #003bb3;
+    --primary-light: #f2f5ff;
+    --success: #2ba471;
+    --warning: #e37318;
+    --danger: #d54941;
+    --gray-1: #1a1a1a;
+    --gray-2: #333;
+    --gray-3: #666;
+    --gray-4: #999;
+    --gray-5: #bbb;
+    --gray-6: #ddd;
+    --gray-7: #e5e5e5;
+    --gray-8: #f5f5f5;
+    --gray-9: #fafafa;
+    --border-radius: 4px;
+    --header-height: 56px;
+    --aside-width: 240px;
+    --shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; color: var(--gray-2); background: var(--gray-8); }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-6); border-radius: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .layout-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--gray-1); color: #fff; display: flex; align-items: center; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .header-brand { display: flex; align-items: center; padding: 0 20px; font-size: 16px; font-weight: 600; letter-spacing: 0.5px; white-space: nowrap; }
+  .header-brand .logo { width: 28px; height: 28px; background: linear-gradient(135deg, #0052d9, #00a2ff); border-radius: 6px; margin-right: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .header-nav { flex: 1; display: flex; overflow-x: auto; height: 100%; }
+  .header-nav::-webkit-scrollbar { display: none; }
+  .header-tab { padding: 0 18px; height: 100%; display: flex; align-items: center; cursor: pointer; white-space: nowrap; font-size: 13px; color: rgba(255,255,255,0.7); border-bottom: 2px solid transparent; transition: all .2s; position: relative; }
+  .header-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .header-tab.active { color: #fff; border-bottom-color: var(--primary); background: rgba(255,255,255,0.08); }
+  .header-right { display: flex; align-items: center; padding: 0 20px; gap: 16px; }
+  .header-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; color: rgba(255,255,255,0.8); position: relative; }
+  .header-icon:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .header-icon .badge { position: absolute; top: 2px; right: 2px; min-width: 14px; height: 14px; background: var(--danger); color: #fff; font-size: 10px; border-radius: 7px; padding: 0 3px; display: flex; align-items: center; justify-content: center; }
+  .header-user { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+  .header-user:hover { background: rgba(255,255,255,0.1); }
+  .header-user .avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; }
+  .header-user .name { font-size: 13px; color: rgba(255,255,255,0.9); }
+
+  .layout-body { display: flex; padding-top: var(--header-height); height: 100vh; overflow: hidden; }
+  .layout-aside { width: var(--aside-width); background: #fff; border-right: 1px solid var(--gray-7); display: flex; flex-direction: column; overflow-y: auto; }
+  .aside-menu { padding: 8px 0; }
+  .menu-group { margin-bottom: 4px; }
+  .menu-item { display: flex; align-items: center; padding: 0 20px; height: 40px; cursor: pointer; font-size: 14px; color: var(--gray-3); transition: all .15s; position: relative; user-select: none; }
+  .menu-item:hover { background: var(--gray-9); color: var(--gray-2); }
+  .menu-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+  .menu-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary); }
+  .menu-item .icon { width: 20px; margin-right: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .menu-item .arrow { margin-left: auto; font-size: 12px; transition: transform .2s; color: var(--gray-5); }
+  .menu-item.expanded .arrow { transform: rotate(90deg); }
+  .submenu { display: none; }
+  .submenu.open { display: block; }
+  .submenu .menu-item { padding-left: 50px; height: 36px; font-size: 13px; }
+
+  .layout-main { flex: 1; overflow-y: auto; padding: 24px; }
+
+  .page-header { margin-bottom: 20px; }
+  .page-header h1 { font-size: 22px; font-weight: 600; color: var(--gray-1); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-header .desc { font-size: 13px; color: var(--gray-4); }
+
+  .card { background: #fff; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 16px; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-7); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h3 { font-size: 15px; font-weight: 600; color: var(--gray-2); }
+  .card-body { padding: 20px; }
+
+  .form-row { display: flex; align-items: flex-start; margin-bottom: 18px; }
+  .form-row:last-child { margin-bottom: 0; }
+  .form-label { width: 220px; padding-right: 16px; text-align: right; line-height: 32px; color: var(--gray-2); font-size: 14px; flex-shrink: 0; }
+  .form-label.required::before { content: '*'; color: var(--danger); margin-right: 4px; }
+  .form-control { flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .form-control .tips { font-size: 12px; color: var(--gray-4); width: 100%; margin-top: 4px; }
+  input[type="text"], input[type="number"], input[type="url"], textarea, select { height: 32px; border: 1px solid var(--gray-6); border-radius: var(--border-radius); padding: 0 12px; font-size: 14px; color: var(--gray-2); outline: none; transition: border .2s; min-width: 280px; flex: 1; font-family: inherit; }
+  textarea { height: auto; min-height: 80px; padding: 8px 12px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+  input::placeholder, textarea::placeholder { color: var(--gray-5); }
+  input:disabled, textarea:disabled { background: var(--gray-9); color: var(--gray-4); }
+  .input-short { min-width: 120px !important; flex: 0 !important; width: 120px; }
+  .input-mid { min-width: 200px !important; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 16px; border-radius: var(--border-radius); font-size: 14px; cursor: pointer; border: 1px solid transparent; transition: all .15s; font-family: inherit; gap: 4px; }
+  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+  .btn-default { background: #fff; color: var(--gray-2); border-color: var(--gray-6); }
+  .btn-default:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+  .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .btn-sm { height: 28px; padding: 0 12px; font-size: 13px; }
+  .btn-link { color: var(--primary); background: transparent; border-color: transparent; }
+  .btn-link:hover { text-decoration: underline; }
+
+  .upload-box { width: 80px; height: 80px; border: 1px dashed var(--gray-6); border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--gray-4); font-size: 12px; flex-direction: column; gap: 4px; transition: border .2s; }
+  .upload-box:hover { border-color: var(--primary); color: var(--primary); }
+  .upload-preview { width: 80px; height: 80px; border-radius: var(--border-radius); object-fit: cover; border: 1px solid var(--gray-7); }
+  .icon-preview { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid var(--gray-7); display: inline-block; vertical-align: middle; }
+  .icon-preview-sm { width: 24px; height: 24px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--gray-7); }
+  th { background: var(--gray-9); color: var(--gray-3); font-weight: 600; font-size: 13px; white-space: nowrap; }
+  tr:hover td { background: var(--gray-9); }
+  .table-actions { display: flex; gap: 8px; }
+
+  .tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 12px; line-height: 18px; }
+  .tag-green { background: #e8f5e9; color: var(--success); }
+  .tag-blue { background: #e3f2fd; color: var(--primary); }
+  .tag-orange { background: #fff3e0; color: var(--warning); }
+  .tag-red { background: #ffebee; color: var(--danger); }
+  .tag-gray { background: var(--gray-8); color: var(--gray-4); }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+  .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .search-box { position: relative; }
+  .search-box input { padding-left: 32px; min-width: 220px; }
+  .search-box .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-4); }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--gray-7); margin-bottom: 20px; }
+  .tab-item { padding: 0 16px; height: 36px; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: var(--gray-3); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; }
+  .tab-item:hover { color: var(--primary); }
+  .tab-item.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
+
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; background: #c5c5c5; border-radius: 12px; cursor: pointer; transition: background .2s; flex-shrink: 0; vertical-align: middle; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .switch.on { background: var(--success); }
+  .switch.on::after { transform: translateX(20px); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 8px; width: 860px; max-width: 94vw; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-7); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 16px; font-weight: 600; }
+  .modal-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; color: var(--gray-4); }
+  .modal-close:hover { background: var(--gray-8); color: var(--gray-2); }
+  .modal-body { padding: 20px; overflow-y: auto; overflow-x: hidden; }
+  .modal-body .form-label { width: 140px; }
+  .modal-body input[type="text"], .modal-body input[type="number"], .modal-body select { min-width: 0; }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--gray-7); display: flex; justify-content: flex-end; gap: 10px; }
+
+  .game-entry-list { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .game-entry { padding: 12px 20px; background: #fff; border: 1px solid var(--gray-6); border-radius: var(--border-radius); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all .15s; }
+  .game-entry:hover { border-color: var(--primary); color: var(--primary); }
+  .game-entry.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 500; }
+  .game-entry .delete { color: var(--gray-4); margin-left: 4px; }
+  .game-entry .delete:hover { color: var(--danger); }
+  .game-entry.locked .delete { display: none; }
+
+  .share-preview { width: 280px; background: #fff; border-radius: 8px; border: 1px solid var(--gray-6); overflow: hidden; flex-shrink: 0; }
+  .share-preview .preview-img { width: 100%; height: 160px; background: linear-gradient(135deg, #667eea, #764ba2); }
+  .share-preview .preview-info { padding: 12px; }
+  .share-preview .preview-title { font-size: 14px; font-weight: 600; color: var(--gray-1); margin-bottom: 4px; }
+  .share-preview .preview-desc { font-size: 12px; color: var(--gray-4); }
+  .share-preview .preview-source { margin-top: 8px; font-size: 11px; color: var(--gray-5); display: flex; align-items: center; gap: 4px; }
+
+  .preview-wrap { display: flex; gap: 24px; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-4); }
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state p { font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .layout-aside { position: fixed; left: -240px; top: var(--header-height); bottom: 0; z-index: 90; transition: left .2s; }
+    .layout-aside.open { left: 0; }
+    .form-label { width: 100%; text-align: left; margin-bottom: 6px; }
+    .form-row { flex-direction: column; }
+    .preview-wrap { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout-header">
+  <div class="header-brand">
+    <div class="logo">剑</div>
+    <span>经典剑侠系列VIP小程序 · 运营配置后台</span>
+  </div>
+  <div class="header-nav" id="headerNav">
+    <div class="header-tab active" data-top="miniapp">小程序配置</div>
+    <div class="header-tab" data-top="member">会员与权益</div>
+    <div class="header-tab" data-top="activity">内容配置</div>
+    <div class="header-tab" data-top="profile">个人中心配置</div>
+  </div>
+  <div class="header-right">
+    <div class="header-user">
+      <div class="avatar">吴</div>
+      <span class="name">吴文强</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout-body">
+  <aside class="layout-aside" id="aside">
+    <div class="aside-menu" id="asideMenu"></div>
+  </aside>
+  <main class="layout-main" id="main"></main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">标题</h3>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter">
+      <button class="btn btn-default" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="modalConfirm()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= Menu Data =================
+const menuData = [
+  {
+    id: 'miniapp', title: '小程序基础配置', icon: '◫',
+    children: [
+      { id: 'miniapp-basic', title: '协议地址配置' },
+      { id: 'miniapp-share', title: '微信分享配置' },
+      { id: 'miniapp-service', title: '客服二维码海报配置' }
+    ]
+  },
+  {
+    id: 'member', title: '会员与权益', icon: '♔',
+    children: [
+      { id: 'member-level', title: '会员等级配置' },
+      { id: 'member-benefit', title: '权益配置' },
+      { id: 'reward-package', title: '道具奖励配置' }
+    ]
+  },
+  {
+    id: 'activity', title: '内容配置', icon: '✦',
+    children: [
+      { id: 'activity-list', title: '内容列表' }
+    ]
+  },
+  {
+    id: 'games', title: '游戏配置', icon: '🎮',
+    children: [
+      { id: 'game-config', title: '游戏列表' }
+    ]
+  },
+  {
+    id: 'profile', title: '个人中心配置', icon: '☺',
+    children: [
+      { id: 'profile-group', title: '功能组配置' },
+      { id: 'profile-menu', title: '金刚位功能入口' }
+    ]
+  }
+];
+
+const activityData = [
+  { id: 'A1001', desc: '五月江湖盛典', weight: 100, created: '2025-04-20', start: '2025-05-01 00:00', end: '2025-05-31 23:59', status: '进行中', urlType: '小程序内页面', urlValue: '/pages/activity/may2025', onShelf: true, updated: '2025-05-08 14:30', operator: '吴文强', image: 'linear-gradient(135deg,#667eea,#764ba2)' },
+  { id: 'A1002', desc: '端午龙舟竞渡', weight: 90, created: '2025-04-25', start: '2025-06-01 00:00', end: '2025-06-07 23:59', status: '未开始', urlType: '小程序内页面', urlValue: '/pages/activity/dragon2025', onShelf: true, updated: '2025-05-01 10:00', operator: '张三', image: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { id: 'A1003', desc: '清明踏青内容', weight: 80, created: '2025-03-20', start: '2025-04-04 00:00', end: '2025-04-06 23:59', status: '已结束', urlType: '小程序内页面', urlValue: '/pages/activity/qingming2025', onShelf: false, updated: '2025-04-07 09:00', operator: '李四', image: 'linear-gradient(135deg,#43e97b,#38f9d7)' }
+];
+
+const benefitData = [
+  { id: 'B001', icon: 'linear-gradient(135deg,#667eea,#764ba2)', name: '每日签到双倍积分', weight: 100, desc: '签到可获得双倍积分奖励', onShelf: true, url: '/pages/vip/sign', created: '2025-01-10', updated: '2025-05-08', operator: '吴文强' },
+  { id: 'B002', icon: 'linear-gradient(135deg,#f093fb,#f5576c)', name: '专属客服通道', weight: 200, desc: 'VIP5+专属快速客服通道', onShelf: true, url: 'openCustomerService', created: '2025-01-10', updated: '2025-04-20', operator: '张三' },
+  { id: 'B003', icon: 'linear-gradient(135deg,#4facfe,#00f2fe)', name: '生日专属礼包', weight: 150, desc: '生日前3天至当天可领取', onShelf: true, url: '/pages/vip/birthday', created: '2025-02-15', updated: '2025-03-10', operator: '李四' },
+  { id: 'B004', icon: 'linear-gradient(135deg,#43e97b,#38f9d7)', name: '新服优先排队', weight: 300, desc: '新服登录优先排队特权', onShelf: false, url: '/pages/privilege/queue', created: '2025-04-01', updated: '2025-04-01', operator: '吴文强' },
+  { id: 'B005', icon: 'linear-gradient(135deg,#fa709a,#fee140)', name: '专属称号外观', weight: 250, desc: '每月可领取专属限定称号与时装', onShelf: true, url: '/pages/vip/fashion', created: '2025-01-20', updated: '2025-05-05', operator: '吴文强' },
+  { id: 'B006', icon: 'linear-gradient(135deg,#30cfd0,#330867)', name: '交易行手续费减免', weight: 180, desc: '交易行手续费降低50%', onShelf: true, url: '/pages/privilege/trade', created: '2025-02-01', updated: '2025-04-15', operator: '张三' },
+  { id: 'B007', icon: 'linear-gradient(135deg,#a8edea,#fed6e3)', name: '帮派红包加成', weight: 120, desc: '发放帮派红包金额提升20%', onShelf: true, url: '/pages/vip/guild', created: '2025-03-01', updated: '2025-03-20', operator: '李四' },
+  { id: 'B008', icon: 'linear-gradient(135deg,#ff9a9e,#fecfef)', name: '副本额外掉落', weight: 220, desc: '每日首次副本通关额外掉落稀有材料', onShelf: true, url: '/pages/privilege/dungeon', created: '2025-01-15', updated: '2025-05-01', operator: '吴文强' },
+  { id: 'B009', icon: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)', name: '免费传送次数', weight: 160, desc: '每日赠送5次全地图免费传送', onShelf: true, url: '/pages/vip/teleport', created: '2025-02-20', updated: '2025-04-10', operator: '张三' },
+  { id: 'B010', icon: 'linear-gradient(135deg,#fdcbf1,#e6dee9)', name: '离线经验加成', weight: 140, desc: '离线挂机经验收益提升30%', onShelf: true, url: '/pages/privilege/offline', created: '2025-03-10', updated: '2025-03-25', operator: '李四' },
+  { id: 'B011', icon: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', name: '周常任务刷新券', weight: 190, desc: '每周赠送3张周常任务刷新券', onShelf: true, url: '/pages/vip/refresh', created: '2025-01-25', updated: '2025-04-28', operator: '吴文强' },
+  { id: 'B012', icon: 'linear-gradient(135deg,#84fab0,#8fd3f4)', name: '限量外观优先购买', weight: 280, desc: '限定外观上架前24小时优先购买权', onShelf: true, url: '/pages/vip/early', created: '2025-04-05', updated: '2025-05-06', operator: '张三' }
+];
+
+const rewardPackageData = [
+  { packageId: 'P001', gameId: 'general', packageName: '江湖初阶礼包', weight: 100, items: [
+    { name: '青锋剑', itemId: 'I001', quantity: 1, icon: 'linear-gradient(135deg,#e0c3fc,#8ec5fc)', weight: 100 },
+    { name: '玄铁盾', itemId: 'I002', quantity: 1, icon: 'linear-gradient(135deg,#ff8177,#ff867a)', weight: 90 },
+    { name: '碧玉戒', itemId: 'I003', quantity: 1, icon: 'linear-gradient(135deg,#fad0c4,#ffd1ff)', weight: 80 }
+  ]},
+  { packageId: 'P002', gameId: 'general', packageName: '江湖进阶礼包', weight: 90, items: [
+    { name: '踏云靴', itemId: 'I005', quantity: 1, icon: 'linear-gradient(135deg,#37ecba,#72afd3)', weight: 100 },
+    { name: '追风弓', itemId: 'I007', quantity: 1, icon: 'linear-gradient(135deg,#c471ed,#f64f59)', weight: 90 }
+  ]},
+  { packageId: 'P003', gameId: 'general', packageName: '江湖高阶礼包', weight: 80, items: [
+    { name: '龙渊剑', itemId: 'I010', quantity: 1, icon: 'linear-gradient(135deg,#e6e9f0,#eef1f5)', weight: 100 },
+    { name: '龙鳞甲', itemId: 'I013', quantity: 1, icon: 'linear-gradient(135deg,#a1ffce,#faffd1)', weight: 90 }
+  ]},
+  { packageId: 'P004', gameId: 'general', packageName: '江湖至尊礼包', weight: 70, items: [
+    { name: '霸王枪', itemId: 'I017', quantity: 1, icon: 'linear-gradient(135deg,#30cfd0,#330867)', weight: 100 },
+    { name: '太极图', itemId: 'I021', quantity: 1, icon: 'linear-gradient(135deg,#f093fb,#f5576c)', weight: 90 },
+    { name: '昆仑印', itemId: 'I026', quantity: 1, icon: 'linear-gradient(135deg,#e0c3fc,#8ec5fc)', weight: 80 }
+  ]},
+  { packageId: 'P005', gameId: 'jxsj', packageName: '剑世入门礼包', weight: 100, items: [
+    { name: '佛珠链', itemId: 'I004', quantity: 1, icon: 'linear-gradient(135deg,#cfd9df,#e2ebf0)', weight: 100 },
+    { name: '金丝甲', itemId: 'I006', quantity: 1, icon: 'linear-gradient(135deg,#ebbba7,#cfc7f8)', weight: 90 }
+  ]},
+  { packageId: 'P006', gameId: 'jxsj', packageName: '剑世进阶礼包', weight: 90, items: [
+    { name: '聚气丹', itemId: 'I008', quantity: 1, icon: 'linear-gradient(135deg,#48c6ef,#6f86d6)', weight: 100 },
+    { name: '千里符', itemId: 'I011', quantity: 1, icon: 'linear-gradient(135deg,#d299c2,#fef9d7)', weight: 90 }
+  ]},
+  { packageId: 'P007', gameId: 'jxsj', packageName: '剑世高阶礼包', weight: 80, items: [
+    { name: '招魂灯', itemId: 'I014', quantity: 1, icon: 'linear-gradient(135deg,#ffecd2,#fcb69f)', weight: 100 },
+    { name: '九转丹', itemId: 'I016', quantity: 1, icon: 'linear-gradient(135deg,#667eea,#764ba2)', weight: 90 },
+    { name: '神雕羽', itemId: 'I018', quantity: 1, icon: 'linear-gradient(135deg,#a8edea,#fed6e3)', weight: 80 },
+    { name: '乾坤诀', itemId: 'I020', quantity: 1, icon: 'linear-gradient(135deg,#43e97b,#38f9d7)', weight: 70 }
+  ]},
+  { packageId: 'P008', gameId: 'jxsj', packageName: '剑世至尊礼包', weight: 70, items: [
+    { name: '龙魂玉', itemId: 'I022', quantity: 1, icon: 'linear-gradient(135deg,#30cfd0,#330867)', weight: 100 },
+    { name: '天眼石', itemId: 'I024', quantity: 1, icon: 'linear-gradient(135deg,#84fab0,#8fd3f4)', weight: 90 },
+    { name: '星辰砂', itemId: 'I027', quantity: 1, icon: 'linear-gradient(135deg,#ff8177,#ff867a)', weight: 80 },
+    { name: '化蝶翼', itemId: 'I029', quantity: 1, icon: 'linear-gradient(135deg,#6a11cb,#2575fc)', weight: 70 },
+    { name: '玄冰魄', itemId: 'I031', quantity: 1, icon: 'linear-gradient(135deg,#fff1eb,#ace0f9)', weight: 60 }
+  ]},
+  { packageId: 'P009', gameId: 'jxqy', packageName: '情缘入门礼包', weight: 100, items: [
+    { name: '心法残卷', itemId: 'I009', quantity: 1, icon: 'linear-gradient(135deg,#feada6,#f5efef)', weight: 100 },
+    { name: '玄晶石', itemId: 'I012', quantity: 1, icon: 'linear-gradient(135deg,#89f7fe,#66a6ff)', weight: 90 }
+  ]},
+  { packageId: 'P010', gameId: 'jxqy', packageName: '情缘进阶礼包', weight: 90, items: [
+    { name: '蟠桃', itemId: 'I015', quantity: 1, icon: 'linear-gradient(135deg,#ff9a9e,#fecfef)', weight: 100 },
+    { name: '还魂草', itemId: 'I019', quantity: 1, icon: 'linear-gradient(135deg,#fa709a,#fee140)', weight: 90 }
+  ]},
+  { packageId: 'P011', gameId: 'jxqy', packageName: '情缘高阶礼包', weight: 80, items: [
+    { name: '至尊冠', itemId: 'I023', quantity: 1, icon: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', weight: 100 },
+    { name: '秘宝箱钥', itemId: 'I025', quantity: 1, icon: 'linear-gradient(135deg,#d4fc79,#96e6a1)', weight: 90 },
+    { name: '辟邪玉', itemId: 'I028', quantity: 1, icon: 'linear-gradient(135deg,#c471ed,#f64f59)', weight: 80 },
+    { name: '南明离火', itemId: 'I030', quantity: 1, icon: 'linear-gradient(135deg,#48c6ef,#6f86d6)', weight: 70 }
+  ]}
+];
+
+const memberLevelData = [
+  { id: 'VIP0', icon: 'linear-gradient(135deg,#f5f5f5,#e0e0e0)', name: '普通玩家', points: 0, benefitIds: [], rewards: [], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP1', icon: 'linear-gradient(135deg,#d4fc79,#96e6a1)', name: '初入江湖', points: 0, benefitIds: ['B001'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P001'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP2', icon: 'linear-gradient(135deg,#ffecd2,#fcb69f)', name: '江湖小虾', points: 100, benefitIds: ['B001','B002'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P001'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP3', icon: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', name: '武林新秀', points: 500, benefitIds: ['B001','B002','B003'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P001'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P005'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP4', icon: 'linear-gradient(135deg,#6a11cb,#2575fc)', name: '仗剑天涯', points: 2000, benefitIds: ['B001','B002','B003','B004'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P002'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P005'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP5', icon: 'linear-gradient(135deg,#fff1eb,#ace0f9)', name: '名动一方', points: 5000, benefitIds: ['B001','B002','B003','B004','B005'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P002'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P006'] },
+    { gameId: 'jxqy', gameName: '剑侠情缘', packageIds: ['P009'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP6', icon: 'linear-gradient(135deg,#accbee,#e7f0fd)', name: '一代宗师', points: 10000, benefitIds: ['B001','B002','B003','B004','B005','B006'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P003'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P006'] },
+    { gameId: 'jxqy', gameName: '剑侠情缘', packageIds: ['P009'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP7', icon: 'linear-gradient(135deg,#fddb92,#d1fdff)', name: '武林盟主', points: 20000, benefitIds: ['B001','B002','B003','B004','B005','B006','B007'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P003'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P007'] },
+    { gameId: 'jxqy', gameName: '剑侠情缘', packageIds: ['P010'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP8', icon: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', name: '绝世高手', points: 50000, benefitIds: ['B001','B002','B003','B004','B005','B006','B007','B008'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P004'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P007'] },
+    { gameId: 'jxqy', gameName: '剑侠情缘', packageIds: ['P010'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP9', icon: 'linear-gradient(135deg,#4facfe,#00f2fe)', name: '独孤求败', points: 100000, benefitIds: ['B001','B002','B003','B004','B005','B006','B007','B008','B009'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P004'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P008'] },
+    { gameId: 'jxqy', gameName: '剑侠情缘', packageIds: ['P011'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' },
+  { id: 'VIP10', icon: 'linear-gradient(135deg,#f093fb,#f5576c)', name: '侠之大者', points: 200000, benefitIds: ['B001','B002','B003','B004','B005','B006','B007','B008','B009','B010','B011','B012'], rewards: [
+    { gameId: 'general', gameName: '通用', packageIds: ['P004'] },
+    { gameId: 'jxsj', gameName: '剑侠世界', packageIds: ['P008'] },
+    { gameId: 'jxqy', gameName: '剑侠情缘', packageIds: ['P011'] }
+  ], updated: '2025-05-08 18:22', operator: '吴文强' }
+];
+
+const miniappConfigData = [
+  { key: 'memberRule', label: '会员规则说明', value: 'https://test.xoyo.com/agreement/member-rule.html?from=mini' },
+  { key: 'userAgreement', label: '用户协议', value: 'https://test.xoyo.com/agreement/user.html?from=mini' },
+  { key: 'privacyPolicy', label: '隐私政策', value: 'https://test.xoyo.com/agreement/privacy-policy.html?from=mini' }
+];
+
+const miniappShareData = { title: '经典剑侠系列VIP会员', image: 'linear-gradient(135deg,#667eea,#764ba2)' };
+
+const miniappServiceData = [
+  { id: 'S001', name: '专属客服', image: 'linear-gradient(135deg,#2ba471,#00a2ff)', hint: '扫码添加专属客服' },
+  { id: 'S002', name: '高级客服', image: 'linear-gradient(135deg,#30cfd0,#330867)', hint: '扫码添加高级客服' },
+  { id: 'S003', name: '金牌客服', image: 'linear-gradient(135deg,#ff9a9e,#fecfef)', hint: '扫码添加金牌客服' }
+];
+
+const gameConfigData = [
+  { gamecod: 'general', name: '通用', icon: 'linear-gradient(135deg,#667eea,#764ba2)', weight: 100, isDefault: true, updated: '2025-05-08 18:22', operator: '吴文强' },
+  { gamecod: 'jxqy', name: '剑侠情缘', icon: 'linear-gradient(135deg,#f093fb,#f5576c)', weight: 90, isDefault: false, updated: '2025-05-08 18:22', operator: '吴文强' },
+  { gamecod: 'jxsj', name: '剑侠世界', icon: 'linear-gradient(135deg,#4facfe,#00f2fe)', weight: 80, isDefault: false, updated: '2025-04-20 10:00', operator: '张三' },
+  { gamecod: 'jx3', name: '剑网3', icon: 'linear-gradient(135deg,#43e97b,#38f9d7)', weight: 70, isDefault: false, updated: '2025-03-15 14:00', operator: '李四' },
+  { gamecod: 'jxsl', name: '剑侠世界起源', icon: 'linear-gradient(135deg,#fa709a,#fee140)', weight: 60, isDefault: false, updated: '2025-02-28 09:30', operator: '吴文强' }
+];
+
+const profileGroupData = [
+  { groupId: 'vip', name: '会员', weight: 100, onShelf: true, created: '2025-01-10', updated: '2025-05-08', operator: '吴文强' },
+  { groupId: 'role', name: '角色', weight: 90, onShelf: true, created: '2025-01-10', updated: '2025-04-20', operator: '张三' },
+  { groupId: 'activity', name: '内容', weight: 80, onShelf: true, created: '2025-02-15', updated: '2025-03-10', operator: '李四' },
+  { groupId: 'tool', name: '工具', weight: 60, onShelf: true, created: '2025-03-01', updated: '2025-03-01', operator: '吴文强' },
+  { groupId: 'kefu', name: '客服', weight: 50, onShelf: true, created: '2025-02-01', updated: '2025-05-15', operator: '吴文强' }
+];
+
+const profileMenuData = [
+  { funcId: 'F001', groupId: 'vip', icon: 'linear-gradient(135deg,#30cfd0,#330867)', name: '我的会员', onShelf: true, unlockLevel: 'VIP1', url: '/pages/vip/index', created: '2025-01-10', updated: '2025-05-08', operator: '吴文强' },
+  { funcId: 'F002', groupId: 'role', icon: 'linear-gradient(135deg,#a8edea,#fed6e3)', name: '我的角色', onShelf: true, unlockLevel: 'VIP1', url: '/pages/role/mine', created: '2025-01-10', updated: '2025-04-20', operator: '张三' },
+  { funcId: 'F003', groupId: 'activity', icon: 'linear-gradient(135deg,#ff9a9e,#fecfef)', name: '我的内容', onShelf: true, unlockLevel: 'VIP2', url: '/pages/activity/mine', created: '2025-02-15', updated: '2025-03-10', operator: '李四' },
+  { funcId: 'F004', groupId: 'tool', icon: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', name: '地址管理', onShelf: true, unlockLevel: 'VIP1', url: '/pages/address/index', created: '2025-03-01', updated: '2025-03-01', operator: '吴文强' },
+  { funcId: 'F005', groupId: 'tool', icon: 'linear-gradient(135deg,#84fab0,#8fd3f4)', name: '设置', onShelf: true, unlockLevel: 'VIP1', url: '/pages/settings/index', created: '2025-03-01', updated: '2025-05-01', operator: '吴文强' },
+  { funcId: 'F006', groupId: 'kefu', icon: 'linear-gradient(135deg,#e0c3fc,#8ec5fc)', name: '专属客服', onShelf: true, unlockLevel: 'VIP0', url: 'openCustomerService', created: '2025-02-01', updated: '2025-04-10', operator: '张三' },
+  { funcId: 'F007', groupId: 'kefu', icon: 'linear-gradient(135deg,#d299c2,#fef9d7)', name: '高级客服', onShelf: true, unlockLevel: 'VIP3', url: 'openCustomerService', created: '2025-03-01', updated: '2025-05-15', operator: '吴文强' },
+  { funcId: 'F008', groupId: 'kefu', icon: 'linear-gradient(135deg,#ff9a9e,#fecfef)', name: '金牌客服', onShelf: true, unlockLevel: 'VIP6', url: 'openCustomerService', created: '2025-03-01', updated: '2025-05-15', operator: '吴文强' }
+];
+
+
+const state = {
+  activeTop: 'miniapp',
+  activeMenu: 'miniapp-basic',
+  expandedGroups: ['miniapp'],
+  modalCallback: null,
+  activeGame: '通用'
+};
+
+// ================= Render =================
+function renderAside() {
+  const el = document.getElementById('asideMenu');
+  el.innerHTML = menuData.map(group => {
+    const expanded = state.expandedGroups.includes(group.id);
+    const hasChildren = group.children && group.children.length;
+    const activeGroup = group.children && group.children.some(c => c.id === state.activeMenu);
+    return `
+      <div class="menu-group">
+        <div class="menu-item ${activeGroup ? 'active' : ''} ${expanded ? 'expanded' : ''}" onclick="toggleGroup('${group.id}')">
+          <span class="icon">${group.icon}</span>
+          <span>${group.title}</span>
+          ${hasChildren ? `<span class="arrow">▸</span>` : ''}
+        </div>
+        ${hasChildren ? `
+          <div class="submenu ${expanded ? 'open' : ''}">
+            ${group.children.map(child => `
+              <div class="menu-item ${child.id === state.activeMenu ? 'active' : ''}" onclick="selectMenu('${child.id}')">${child.title}</div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderMain() {
+  const main = document.getElementById('main');
+  const pageId = state.activeMenu;
+  const renderFn = pageRenderers[pageId] || pageRenderers['miniapp-basic'];
+  main.innerHTML = renderFn();
+  attachInteractions();
+}
+
+function toggleGroup(id) {
+  if (state.expandedGroups.includes(id)) {
+    state.expandedGroups = state.expandedGroups.filter(g => g !== id);
+  } else {
+    state.expandedGroups.push(id);
+  }
+  renderAside();
+}
+
+function selectMenu(id) {
+  state.activeMenu = id;
+  const parent = menuData.find(g => g.children && g.children.some(c => c.id === id));
+  if (parent && !state.expandedGroups.includes(parent.id)) {
+    state.expandedGroups.push(parent.id);
+  }
+  renderAside();
+  renderMain();
+}
+
+// ================= Page Renderers =================
+const pageRenderers = {
+  // --- Miniapp ---
+  'miniapp-basic': () => {
+    const rows = miniappConfigData.map((cfg, i) => `
+      <div class="form-row">
+        <div class="form-label">${cfg.label}</div>
+        <div class="form-control">
+          <input type="text" value="${cfg.value}" readonly id="cfg-${cfg.key}" />
+          <button class="btn btn-primary btn-sm" onclick="editMiniappConfig(${i})">修改</button>
+        </div>
+      </div>
+    `).join('');
+    return `
+    <div class="page-header"><h1>小程序基础配置</h1><p class="desc">配置小程序合规协议与基础地址</p></div>
+    <div class="card">
+      <div class="card-header"><h3>协议地址配置</h3></div>
+      <div class="card-body">${rows}</div>
+    </div>
+  `;
+  },
+
+  'miniapp-share': () => {
+    const share = miniappShareData;
+    return `
+    <div class="page-header"><h1>微信分享配置</h1><p class="desc">配置小程序分享兜底标题与图片</p></div>
+    <div class="card">
+      <div class="card-header"><h3>分享兜底配置</h3><button class="btn btn-primary btn-sm" onclick="editMiniappShare()">编辑</button></div>
+      <div class="card-body">
+        <div class="form-row"><div class="form-label">分享兜底标题</div><div class="form-control"><input type="text" value="${share.title}" readonly /></div></div>
+        <div class="form-row"><div class="form-label">分享兜底图片</div><div class="form-control"><div class="upload-preview" style="background:${share.image}"></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>分享预览</h3></div>
+      <div class="card-body">
+        <div class="preview-wrap">
+          <div class="share-preview">
+            <div class="preview-img" style="background:${share.image}"></div>
+            <div class="preview-info">
+              <div class="preview-title">${share.title}</div>
+              <div class="preview-desc">经典剑侠系列VIP会员小程序</div>
+              <div class="preview-source"><span style="width:16px;height:16px;background:var(--success);border-radius:4px;display:inline-block;"></span> 经典剑侠VIP小程序</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  },
+
+  'miniapp-service': () => {
+    const rows = miniappServiceData.map((svc, i) => `
+      <tr>
+        <td>${i+1}</td><td>${svc.id}</td><td>${svc.name}</td><td><div class="icon-preview" style="background:${svc.image};width:48px;height:48px;"></div></td><td>${svc.hint}</td>
+        <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewMiniappService(${i})">查看</button><button class="btn btn-primary btn-sm" onclick="editMiniappService(${i})">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteMiniappService(${i})">删除</button></td>
+      </tr>
+    `).join('');
+    return `
+    <div class="page-header"><h1>客服二维码海报配置</h1><p class="desc">配置客服二维码海报</p></div>
+    <div class="card">
+      <div class="card-header"><h3>二维码海报列表</h3><button class="btn btn-primary btn-sm" onclick="addMiniappService()">+ 新增二维码海报</button></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>二维码海报id</th><th>二维码海报名称</th><th>二维码海报图片</th><th>二维码海报提示文案</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  // --- Member ---
+  'member-level': () => {
+    const rows = memberLevelData.map((lvl, i) => {
+      const benefitNames = lvl.benefitIds.map(bid => {
+        const b = benefitData.find(x => x.id === bid);
+        return b ? b.name : bid;
+      }).join('、');
+      const totalPkgs = lvl.rewards.reduce((sum, g) => sum + g.packageIds.length, 0);
+      const pkgNames = lvl.rewards.map(g => g.packageIds.map(pid => {
+        const p = rewardPackageData.find(rp => rp.packageId === pid);
+        return p ? p.packageName : pid;
+      }).join('、')).join('；');
+      return `<tr>
+        <td>${i+1}</td>
+        <td>${lvl.id}</td>
+        <td><div class="icon-preview" style="background:${lvl.icon}"></div></td>
+        <td>${lvl.name}</td>
+        <td>${lvl.points.toLocaleString()}</td>
+        <td title="${benefitNames}">${lvl.benefitIds.length}项</td>
+        <td title="${pkgNames}">${totalPkgs}个礼包（${lvl.rewards.length}个游戏）</td>
+        <td>${lvl.updated}</td>
+        <td>${lvl.operator}</td>
+        <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewMemberLevel(${i})">查看</button></td>
+        <td class="table-actions"><button class="btn btn-primary btn-sm" onclick="editMemberLevel(${i})">编辑</button></td>
+      </tr>`;
+    }).join('');
+    return `
+    <div class="page-header"><h1>会员等级配置</h1><p class="desc">配置VIP成长体系与等级规则</p></div>
+    <div class="card">
+      <div class="card-header"><h3>等级规则</h3><button class="btn btn-primary btn-sm">+ 新增等级</button></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>VIP id</th><th>VIP 图标</th><th>VIP 名称</th><th>VIP所需积分</th>
+              <th>VIP拥有权益</th><th>VIP道具奖励</th><th>最后更新时间</th><th>操作人</th><th>操作</th><th>编辑</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  'member-benefit': () => {
+    const rows = benefitData.map((b, i) => {
+      const switchCls = b.onShelf ? 'switch on' : 'switch';
+      return `<tr>
+        <td>${i+1}</td><td>${b.id}</td><td><div class="icon-preview" style="background:${b.icon}"></div></td><td>${b.name}</td><td>${b.weight}</td>
+        <td>${b.desc}</td>
+        <td><span class="${switchCls}" onclick="toggleShelf(benefitData,${i})"></span></td>
+        <td>${b.url}</td><td>${b.created}</td><td>${b.updated}</td><td>${b.operator}</td>
+        <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewBenefit(${i})">查看</button></td>
+        <td class="table-actions"><button class="btn btn-primary btn-sm" onclick="editBenefit(${i})">编辑</button></td>
+        <td class="table-actions"><button class="btn btn-danger btn-sm">删除</button></td>
+      </tr>`;
+    }).join('');
+    return `
+    <div class="page-header"><h1>权益配置</h1><p class="desc">配置各等级会员专属权益</p></div>
+    <div class="card">
+      <div class="card-header"><h3>权益列表</h3><button class="btn btn-primary btn-sm">+ 新增权益</button></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>权益id</th><th>权益图标</th><th>权益名称</th><th>权益权重</th>
+              <th>权益描述</th><th>上架开关</th><th>URL或调起功能</th><th>创建时间</th>
+              <th>最后更新时间</th><th>操作人</th><th>操作</th><th>编辑</th><th>删除</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  'reward-package': () => {
+    const groups = {};
+    rewardPackageData.forEach((p, i) => {
+      if (!groups[p.gameId]) groups[p.gameId] = [];
+      groups[p.gameId].push({ pkg: p, index: i });
+    });
+    let tbodyHtml = '';
+    let seq = 1;
+    Object.keys(groups).forEach(gameId => {
+      const g = gameConfigData.find(x => x.gamecod === gameId);
+      tbodyHtml += `<tr style="background:var(--gray-9);"><td colspan="9" style="font-weight:600;color:var(--primary);font-size:13px;">${g ? g.name : gameId}（${gameId}）</td></tr>`;
+      groups[gameId].forEach(({ pkg, index }) => {
+        tbodyHtml += `<tr>
+          <td>${seq++}</td><td>${pkg.packageId}</td><td>${pkg.packageName}</td><td>${pkg.weight}</td><td>${pkg.items.length}个道具</td>
+          <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewRewardPackage(${index})">查看</button><button class="btn btn-primary btn-sm" onclick="editRewardPackage(${index})">编辑</button><button class="btn btn-danger btn-sm">删除</button></td>
+        </tr>`;
+      });
+    });
+    return `
+    <div class="page-header"><h1>道具奖励配置</h1><p class="desc">按游戏划分配置游戏礼包</p></div>
+    <div class="card">
+      <div class="card-header"><h3>游戏礼包列表</h3><button class="btn btn-primary btn-sm" onclick="addRewardPackage()">+ 新增礼包</button></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>礼包id</th><th>礼包名称</th><th>礼包权重</th><th>道具奖励详情</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  // --- Activity ---
+  'activity-list': () => {
+    const rows = activityData.map((act, i) => {
+      const statusTag = act.status === '进行中' ? 'tag-green' : act.status === '未开始' ? 'tag-blue' : 'tag-gray';
+      const switchCls = act.onShelf ? 'switch on' : 'switch';
+      return `<tr>
+        <td>${i+1}</td><td>${act.id}</td><td><div class="upload-preview" style="background:${act.image}"></div></td>
+        <td>${act.desc}</td><td>${act.weight}</td><td>${act.created}</td>
+        <td>${act.start}</td><td>${act.end}</td><td><span class="tag ${statusTag}">${act.status}</span></td>
+        <td>${act.urlType}${act.urlType !== '不跳转' ? '：' + act.urlValue : ''}</td><td><span class="${switchCls}" onclick="toggleShelf(activityData,${i})"></span></td>
+        <td>${act.updated}</td><td>${act.operator}</td>
+        <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewActivity(${i})">查看</button><button class="btn btn-primary btn-sm" onclick="editActivity(${i})">编辑</button><button class="btn btn-danger btn-sm">删除</button></td>
+      </tr>`;
+    }).join('');
+    return `
+    <div class="page-header"><h1>内容配置</h1><p class="desc">按游戏入口管理运营内容</p></div>
+    <div class="card">
+      <div class="card-header">
+        <h3>游戏入口</h3>
+        <button class="btn btn-primary btn-sm" onclick="showModal('新增游戏','<div class=form-row><div class=form-label>游戏名称</div><div class=form-control><input type=text placeholder=请输入游戏名称 /></div></div>')">+ 新增游戏</button>
+      </div>
+      <div class="card-body">
+        <div class="game-entry-list">
+          <div class="game-entry locked active" onclick="switchGame(this,'通用')">通用<span class="delete">🗑</span></div>
+          <div class="game-entry" onclick="switchGame(this,'剑侠情缘·网络版')">剑侠情缘·网络版<span class="delete" onclick="event.stopPropagation();this.parentElement.remove()">🗑</span></div>
+          <div class="game-entry" onclick="switchGame(this,'剑侠世界·起源')">剑侠世界·起源<span class="delete" onclick="event.stopPropagation();this.parentElement.remove()">🗑</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="toolbar" style="margin:0;width:100%;">
+          <div class="toolbar-left">
+            <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="内容名称/ID" /></div>
+            <select><option>全部状态</option><option>未开始</option><option>进行中</option><option>已结束</option></select>
+          </div>
+          <div class="toolbar-right"><button class="btn btn-primary">+ 创建内容</button></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>内容id</th><th>内容图片</th><th>内容描述</th><th>内容权重</th><th>创建时间</th>
+              <th>开始时间</th><th>结束时间</th><th>当前状态</th><th>URL或调起功能</th><th>上架开关</th>
+              <th>最后更新时间</th><th>操作人</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  // --- Games ---
+  'game-config': () => {
+    const rows = gameConfigData.map((g, i) => {
+      const switchCls = g.isDefault ? 'switch on' : 'switch';
+      return `<tr>
+        <td>${i+1}</td><td>${g.name}</td><td><div class="icon-preview" style="background:${g.icon}"></div></td><td>${g.weight}</td><td><span class="${switchCls}" id="defaultSwitch${i}" onclick="toggleDefaultGame(${i})"></span></td><td>${g.updated}</td><td>${g.operator}</td>
+        <td class="table-actions"><button class="btn btn-primary btn-sm" onclick="editGameConfig(${i})">编辑</button></td>
+      </tr>`;
+    }).join('');
+    return `
+    <div class="page-header"><h1>游戏配置</h1><p class="desc">配置已接入的剑侠系列游戏</p></div>
+    <div class="card">
+      <div class="card-header"><h3>游戏列表</h3></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>游戏名称</th><th>游戏图标</th><th>游戏权重</th><th>默认游戏</th><th>最后更新时间</th><th>操作人</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  // --- Profile ---
+  'profile-group': () => {
+    const rows = profileGroupData.map((g, i) => {
+      const switchCls = g.onShelf ? 'switch on' : 'switch';
+      return `<tr>
+        <td>${i+1}</td><td>${g.groupId}</td><td>${g.name}</td><td>${g.weight}</td><td><span class="${switchCls}" onclick="toggleShelf(profileGroupData,${i})"></span></td>
+        <td>${g.created}</td><td>${g.updated}</td><td>${g.operator}</td>
+        <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewProfileGroup(${i})">查看</button><button class="btn btn-primary btn-sm" onclick="editProfileGroup(${i})">编辑</button><button class="btn btn-danger btn-sm">删除</button></td>
+      </tr>`;
+    }).join('');
+    return `
+    <div class="page-header"><h1>功能组配置</h1><p class="desc">配置金刚位功能组</p></div>
+    <div class="card">
+      <div class="card-header"><h3>功能组列表</h3><button class="btn btn-primary btn-sm" onclick="addProfileGroup()">+ 新增功能组</button></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>功能组id</th><th>功能组名称</th><th>功能组权重</th><th>上架开关</th>
+              <th>创建时间</th><th>最后更新时间</th><th>操作人</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+  'profile-menu': () => {
+    const groups = {};
+    profileMenuData.forEach((item, i) => {
+      if (!groups[item.groupId]) groups[item.groupId] = [];
+      groups[item.groupId].push({ item, index: i });
+    });
+    let tbodyHtml = '';
+    let seq = 1;
+    Object.keys(groups).forEach(groupId => {
+      const g = profileGroupData.find(x => x.groupId === groupId);
+      tbodyHtml += `<tr style="background:var(--gray-9);"><td colspan="11" style="font-weight:600;color:var(--primary);font-size:13px;">功能组：${g ? g.name : groupId}（${groupId}）</td></tr>`;
+      groups[groupId].forEach(({ item, index }) => {
+        const switchCls = item.onShelf ? 'switch on' : 'switch';
+        const lvl = memberLevelData.find(l => l.id === item.unlockLevel);
+        tbodyHtml += `<tr>
+          <td>${seq++}</td><td>${item.funcId}</td><td>${item.groupId}</td><td><div class="icon-preview" style="background:${item.icon}"></div></td><td>${item.name}</td><td><span class="${switchCls}" onclick="toggleShelf(profileMenuData,${index})"></span></td>
+          <td>${lvl ? lvl.name : item.unlockLevel}</td><td>${item.url}</td><td>${item.created}</td><td>${item.updated}</td><td>${item.operator}</td>
+          <td class="table-actions"><button class="btn btn-default btn-sm" onclick="viewProfileItem(profileMenuData,${index})">查看</button><button class="btn btn-primary btn-sm" onclick="editProfileItem(profileMenuData,${index})">编辑</button><button class="btn btn-danger btn-sm">删除</button></td>
+        </tr>`;
+      });
+    });
+    return `
+    <div class="page-header"><h1>金刚位功能入口配置</h1><p class="desc">配置个人中心金刚位功能入口</p></div>
+    <div class="card">
+      <div class="card-header"><h3>入口列表</h3><button class="btn btn-primary btn-sm">+ 新增入口</button></div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th><th>功能id</th><th>功能组id</th><th>工具图标</th><th>工具名称</th><th>上架开关</th>
+              <th>解锁等级</th><th>URL或调起功能</th><th>创建时间</th><th>最后更新时间</th><th>操作人</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  },
+
+};
+
+// ================= Interactions =================
+function attachInteractions() {
+  document.querySelectorAll('.tabs').forEach(tabContainer => {
+    tabContainer.querySelectorAll('.tab-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabContainer.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+  });
+  document.querySelectorAll('.switch').forEach(sw => {
+    sw.addEventListener('click', () => sw.classList.toggle('on'));
+  });
+}
+
+function switchGame(el, name) {
+  document.querySelectorAll('.game-entry').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  state.activeGame = name;
+}
+
+// Modal
+function showModal(title, bodyHtml, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  state.modalCallback = onConfirm;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  state.modalCallback = null;
+}
+function modalConfirm() {
+  if (state.modalCallback) state.modalCallback();
+  closeModal();
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+function editActivity(index) {
+  const act = activityData[index];
+  const urlOptions = ['不跳转','文章ID','URL','调起微信分享','公众号文章','视频号视频','小程序内页面'];
+  const optionsHtml = urlOptions.map(o => `<option value="${o}" ${act.urlType === o ? 'selected' : ''}>${o}</option>`).join('');
+  const body = `
+    <div class="form-row"><div class="form-label">内容ID</div><div class="form-control"><input type="text" id="editActId" value="${act.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">内容描述</div><div class="form-control"><input type="text" id="editActDesc" value="${act.desc}" /></div></div>
+    <div class="form-row"><div class="form-label">内容权重</div><div class="form-control"><input type="number" id="editActWeight" value="${act.weight}" /></div></div>
+    <div class="form-row"><div class="form-label">开始时间</div><div class="form-control"><input type="text" id="editActStart" value="${act.start}" /></div></div>
+    <div class="form-row"><div class="form-label">结束时间</div><div class="form-control"><input type="text" id="editActEnd" value="${act.end}" /></div></div>
+    <div class="form-row"><div class="form-label">URL或调起功能</div><div class="form-control"><select id="editActUrlType" onchange="onUrlTypeChange(this)">${optionsHtml}</select></div></div>
+    <div class="form-row" id="urlValueRow" style="${act.urlType === '不跳转' ? 'display:none' : ''}"><div class="form-label">对应值</div><div class="form-control"><input type="text" id="editActUrlValue" value="${act.urlValue}" /></div></div>
+    <div class="form-row"><div class="form-label">上架开关</div><div class="form-control"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><span class="switch ${act.onShelf ? 'on' : ''}" id="editActSwitch" onclick="this.classList.toggle('on')"></span><span>启用</span></label></div></div>
+  `;
+  showModal('编辑内容', body, () => saveActivity(index));
+}
+
+function onUrlTypeChange(select) {
+  const row = document.getElementById('urlValueRow');
+  if (row) row.style.display = select.value === '不跳转' ? 'none' : '';
+}
+
+function saveActivity(index) {
+  const act = activityData[index];
+  act.desc = document.getElementById('editActDesc').value;
+  act.weight = parseInt(document.getElementById('editActWeight').value, 10) || 0;
+  act.start = document.getElementById('editActStart').value;
+  act.end = document.getElementById('editActEnd').value;
+  act.urlType = document.getElementById('editActUrlType').value;
+  act.urlValue = document.getElementById('editActUrlValue').value;
+  act.onShelf = document.getElementById('editActSwitch').classList.contains('on');
+  act.updated = new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-');
+  act.operator = '吴文强';
+  const now = new Date();
+  const start = new Date(act.start);
+  const end = new Date(act.end);
+  if (now < start) act.status = '未开始';
+  else if (now > end) act.status = '已结束';
+  else act.status = '进行中';
+  renderMain();
+}
+
+function editMemberLevel(index) {
+  const lvl = memberLevelData[index];
+  const benefitChecks = benefitData.map(b => `
+    <label style="display:flex;align-items:center;gap:6px;padding:4px 0;cursor:pointer;">
+      <input type="checkbox" class="edit-lvl-benefit" value="${b.id}" ${lvl.benefitIds.includes(b.id) ? 'checked' : ''} />
+      <div class="icon-preview icon-preview-sm" style="background:${b.icon}"></div>
+      <span>${b.name}</span>
+    </label>
+  `).join('');
+
+  const getPackageChecks = (gameId, selectedPkgIds) => {
+    const pkgs = rewardPackageData.filter(p => p.gameId === gameId);
+    return pkgs.map(p => `
+      <label style="display:flex;align-items:center;gap:6px;padding:4px 0;cursor:pointer;">
+        <input type="checkbox" class="edit-lvl-pkg" value="${p.packageId}" ${selectedPkgIds.includes(p.packageId) ? 'checked' : ''} />
+        <span>${p.packageName} (${p.packageId} · 权重${p.weight} · ${p.items.length}个道具)</span>
+      </label>
+    `).join('') || '<span style="font-size:12px;color:var(--gray-4);">该游戏暂无礼包</span>';
+  };
+
+  const gameOptions = gameConfigData.map(gc => `<option value="${gc.gamecod}">${gc.name}</option>`).join('');
+  const gameRewardsHtml = lvl.rewards.map((g, gi) => {
+    const pkgChecksHtml = getPackageChecks(g.gameId, g.packageIds);
+    return `
+    <div class="game-group" data-game-index="${gi}" style="margin-bottom:12px;border:1px solid var(--gray-6);border-radius:var(--border-radius);overflow:hidden;min-width:0;">
+      <div style="display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--gray-8);border-bottom:1px solid var(--gray-6);">
+        ${g.gameId === 'general' ? `
+          <input type="text" class="game-name" style="width:120px;font-weight:500;" value="${g.gameName}" disabled />
+          <input type="text" class="game-id" style="width:120px;color:var(--gray-3);" value="${g.gameId}" disabled />
+          <span style="font-size:12px;color:var(--gray-4);">默认，不可删除</span>
+        ` : `
+          <select class="game-select" style="width:220px;font-weight:500;" onchange="onGamePkgChange(this)">
+            <option value="">-- 选择游戏 --</option>
+            ${gameOptions.replace(`value="${g.gameId}"`, `value="${g.gameId}" selected`)}
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="this.closest('.game-group').remove()">删除游戏</button>
+        `}
+      </div>
+      <div class="pkg-list" style="padding:8px 12px;max-height:200px;overflow-y:auto;">
+        ${pkgChecksHtml}
+      </div>
+    </div>
+  `}).join('');
+
+  const body = `
+    <div class="form-row"><div class="form-label">VIP ID</div><div class="form-control"><input type="text" id="editLvlId" value="${lvl.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">VIP 名称</div><div class="form-control"><input type="text" id="editLvlName" value="${lvl.name}" /></div></div>
+    <div class="form-row"><div class="form-label">VIP 图标</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:${lvl.icon}" id="editLvlIconPreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('editLvlIconInput').click()">上传</button><input type="file" id="editLvlIconInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'editLvlIconPreview','editLvlIcon')" /><input type="text" id="editLvlIcon" value="${lvl.icon}" style="display:none" /></div></div></div>
+    <div class="form-row"><div class="form-label">VIP 所需积分</div><div class="form-control"><input type="number" id="editLvlPoints" value="${lvl.points}" /></div></div>
+    <div class="form-row"><div class="form-label">VIP 拥有权益</div><div class="form-control">
+      <div style="max-height:160px;overflow-y:auto;border:1px solid var(--gray-6);border-radius:var(--border-radius);padding:8px;">${benefitChecks}</div>
+    </div></div>
+    <div class="form-row"><div class="form-label">VIP 道具奖励</div><div class="form-control">
+      <div id="gameRewardsList" style="max-height:360px;overflow-y:auto;">
+        ${gameRewardsHtml}
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="addGameGroup()">+ 添加游戏层级</button>
+    </div></div>
+  `;
+  showModal('编辑会员等级', body, () => saveMemberLevel(index));
+}
+
+function onGamePkgChange(sel) {
+  const gameId = sel.value;
+  const pkgList = sel.closest('.game-group').querySelector('.pkg-list');
+  if (gameId) {
+    const pkgs = rewardPackageData.filter(p => p.gameId === gameId);
+    pkgList.innerHTML = pkgs.map(p => `
+      <label style="display:flex;align-items:center;gap:6px;padding:4px 0;cursor:pointer;">
+        <input type="checkbox" class="edit-lvl-pkg" value="${p.packageId}" />
+        <span>${p.packageName} (${p.packageId} · 权重${p.weight} · ${p.items.length}个道具)</span>
+      </label>
+    `).join('') || '<span style="font-size:12px;color:var(--gray-4);">该游戏暂无礼包</span>';
+  } else {
+    pkgList.innerHTML = '<span style="font-size:12px;color:var(--gray-4);">请先选择游戏</span>';
+  }
+}
+
+function addGameGroup() {
+  const list = document.getElementById('gameRewardsList');
+  const gameOptions = gameConfigData.map(gc => `<option value="${gc.gamecod}">${gc.name}</option>`).join('');
+  const div = document.createElement('div');
+  div.className = 'game-group';
+  div.style.cssText = 'margin-bottom:12px;border:1px solid var(--gray-6);border-radius:var(--border-radius);overflow:hidden;min-width:0;';
+  div.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--gray-8);border-bottom:1px solid var(--gray-6);">
+      <select class="game-select" style="width:220px;font-weight:500;" onchange="onGamePkgChange(this)">
+        <option value="">-- 选择游戏 --</option>
+        ${gameOptions}
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="this.closest('.game-group').remove()">删除游戏</button>
+    </div>
+    <div class="pkg-list" style="padding:8px 12px;max-height:200px;overflow-y:auto;">
+      <span style="font-size:12px;color:var(--gray-4);">请先选择游戏</span>
+    </div>
+  `;
+  list.appendChild(div);
+}
+
+function saveMemberLevel(index) {
+  const lvl = memberLevelData[index];
+  lvl.name = document.getElementById('editLvlName').value;
+  lvl.icon = document.getElementById('editLvlIcon').value;
+  lvl.points = parseInt(document.getElementById('editLvlPoints').value, 10) || 0;
+  lvl.benefitIds = Array.from(document.querySelectorAll('.edit-lvl-benefit'))
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+  const rewards = [];
+  document.querySelectorAll('#gameRewardsList .game-group').forEach(group => {
+    let gameId, gameName;
+    const selectEl = group.querySelector('.game-select');
+    if (selectEl) {
+      gameId = selectEl.value;
+      if (!gameId) return;
+      const selectedGame = gameConfigData.find(g => g.gamecod === gameId);
+      gameName = selectedGame ? selectedGame.name : gameId;
+    } else {
+      gameId = group.querySelector('.game-id').value.trim();
+      gameName = group.querySelector('.game-name').value.trim();
+    }
+    if (!gameId) return;
+    const packageIds = Array.from(group.querySelectorAll('.edit-lvl-pkg:checked'))
+      .map(cb => cb.value);
+    if (packageIds.length || gameId === 'general') rewards.push({ gameId, gameName: gameName || gameId, packageIds });
+  });
+  lvl.rewards = rewards;
+  lvl.updated = new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-');
+  lvl.operator = '吴文强';
+  renderMain();
+}
+
+function viewMemberLevel(index) {
+  const lvl = memberLevelData[index];
+  const benefitNames = lvl.benefitIds.map(bid => {
+    const b = benefitData.find(x => x.id === bid);
+    return b ? b.name : bid;
+  }).join('、');
+  const rewardsHtml = lvl.rewards.map(g => `
+    <div style="margin-bottom:12px;border:1px solid var(--gray-6);border-radius:var(--border-radius);overflow:hidden;">
+      <div style="padding:8px 12px;background:var(--gray-8);font-weight:500;font-size:13px;">${g.gameName} <span style="color:var(--gray-4);font-weight:400;">(${g.gameId})</span></div>
+      <div style="padding:8px 12px;">
+        ${g.packageIds.map(pid => {
+          const p = rewardPackageData.find(rp => rp.packageId === pid);
+          return p ? `<div style="padding:4px 0;font-size:13px;color:var(--gray-2);">${p.packageName} <span style="color:var(--gray-4);">(${pid} · ${p.items.length}个道具)</span></div>` : `<div style="padding:4px 0;font-size:13px;color:var(--gray-2);">${pid}</div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+  const body = `
+    <div class="form-row"><div class="form-label">VIP ID</div><div class="form-control"><input type="text" value="${lvl.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">VIP 名称</div><div class="form-control"><input type="text" value="${lvl.name}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">VIP 图标</div><div class="form-control"><div class="icon-preview" style="background:${lvl.icon}"></div></div></div>
+    <div class="form-row"><div class="form-label">VIP 所需积分</div><div class="form-control"><input type="text" value="${lvl.points.toLocaleString()}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">VIP 拥有权益</div><div class="form-control"><input type="text" value="${benefitNames}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">VIP 道具奖励</div><div class="form-control">${rewardsHtml}</div></div>
+    <div class="form-row"><div class="form-label">最后更新时间</div><div class="form-control"><input type="text" value="${lvl.updated}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">操作人</div><div class="form-control"><input type="text" value="${lvl.operator}" disabled /></div></div>
+  `;
+  showModal('查看会员等级', body);
+}
+
+function viewBenefit(index) {
+  const b = benefitData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">权益ID</div><div class="form-control"><input type="text" value="${b.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">权益图标</div><div class="form-control"><div class="icon-preview" style="background:${b.icon}"></div></div></div>
+    <div class="form-row"><div class="form-label">权益名称</div><div class="form-control"><input type="text" value="${b.name}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">权益权重</div><div class="form-control"><input type="text" value="${b.weight}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">权益描述</div><div class="form-control"><input type="text" value="${b.desc}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">上架状态</div><div class="form-control"><input type="text" value="${b.onShelf ? '已上架' : '已下架'}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">URL或调起功能</div><div class="form-control"><input type="text" value="${b.url}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">创建时间</div><div class="form-control"><input type="text" value="${b.created}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">最后更新时间</div><div class="form-control"><input type="text" value="${b.updated}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">操作人</div><div class="form-control"><input type="text" value="${b.operator}" disabled /></div></div>
+  `;
+  showModal('查看权益', body);
+}
+
+function editBenefit(index) {
+  const b = benefitData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">权益ID</div><div class="form-control"><input type="text" id="editBenId" value="${b.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">权益图标</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:${b.icon}" id="editBenIconPreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('editBenIconInput').click()">上传</button><input type="file" id="editBenIconInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'editBenIconPreview','editBenIcon')" /><input type="text" id="editBenIcon" value="${b.icon}" style="display:none" /></div></div></div>
+    <div class="form-row"><div class="form-label">权益名称</div><div class="form-control"><input type="text" id="editBenName" value="${b.name}" /></div></div>
+    <div class="form-row"><div class="form-label">权益权重</div><div class="form-control"><input type="number" id="editBenWeight" value="${b.weight}" /></div></div>
+    <div class="form-row"><div class="form-label">权益描述</div><div class="form-control"><input type="text" id="editBenDesc" value="${b.desc}" /></div></div>
+    <div class="form-row"><div class="form-label">上架开关</div><div class="form-control"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><span class="switch ${b.onShelf ? 'on' : ''}" id="editBenSwitch" onclick="this.classList.toggle('on')"></span><span>启用</span></label></div></div>
+    <div class="form-row"><div class="form-label">URL或调起功能</div><div class="form-control"><input type="text" id="editBenUrl" value="${b.url}" /></div></div>
+  `;
+  showModal('编辑权益', body, () => saveBenefit(index));
+}
+
+function saveBenefit(index) {
+  const b = benefitData[index];
+  b.icon = document.getElementById('editBenIcon').value;
+  b.name = document.getElementById('editBenName').value;
+  b.weight = parseInt(document.getElementById('editBenWeight').value, 10) || 0;
+  b.desc = document.getElementById('editBenDesc').value;
+  b.onShelf = document.getElementById('editBenSwitch').classList.contains('on');
+  b.url = document.getElementById('editBenUrl').value;
+  b.updated = new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-');
+  b.operator = '吴文强';
+  renderMain();
+}
+
+function viewActivity(index) {
+  const act = activityData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">内容ID</div><div class="form-control"><input type="text" value="${act.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">内容描述</div><div class="form-control"><input type="text" value="${act.desc}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">内容权重</div><div class="form-control"><input type="text" value="${act.weight}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">创建时间</div><div class="form-control"><input type="text" value="${act.created}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">开始时间</div><div class="form-control"><input type="text" value="${act.start}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">结束时间</div><div class="form-control"><input type="text" value="${act.end}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">当前状态</div><div class="form-control"><input type="text" value="${act.status}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">URL或调起功能</div><div class="form-control"><input type="text" value="${act.urlType}${act.urlType !== '不跳转' ? '：' + act.urlValue : ''}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">上架状态</div><div class="form-control"><input type="text" value="${act.onShelf ? '已上架' : '已下架'}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">最后更新时间</div><div class="form-control"><input type="text" value="${act.updated}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">操作人</div><div class="form-control"><input type="text" value="${act.operator}" disabled /></div></div>
+  `;
+  showModal('查看内容', body);
+}
+
+function editMiniappConfig(index) {
+  const cfg = miniappConfigData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">${cfg.label}</div><div class="form-control"><input type="text" id="editCfgValue" value="${cfg.value}" /></div></div>
+  `;
+  showModal('修改' + cfg.label, body, () => saveMiniappConfig(index));
+}
+
+function saveMiniappConfig(index) {
+  miniappConfigData[index].value = document.getElementById('editCfgValue').value;
+  renderMain();
+}
+
+function editMiniappShare() {
+  const share = miniappShareData;
+  const body = `
+    <div class="form-row"><div class="form-label">分享兜底标题</div><div class="form-control"><input type="text" id="editShareTitle" value="${share.title}" /></div></div>
+    <div class="form-row"><div class="form-label">分享兜底图片</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:${share.image}" id="editShareImagePreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('editShareImageInput').click()">上传</button><input type="file" id="editShareImageInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'editShareImagePreview','editShareImage')" /><input type="text" id="editShareImage" value="${share.image}" style="display:none" /></div></div></div>
+  `;
+  showModal('编辑微信分享配置', body, () => saveMiniappShare());
+}
+
+function saveMiniappShare() {
+  miniappShareData.title = document.getElementById('editShareTitle').value;
+  miniappShareData.image = document.getElementById('editShareImage').value;
+  renderMain();
+}
+
+function viewMiniappService(index) {
+  const svc = miniappServiceData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">二维码海报ID</div><div class="form-control"><input type="text" value="${svc.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">二维码海报名称</div><div class="form-control"><input type="text" value="${svc.name}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">二维码海报图片</div><div class="form-control"><div class="upload-preview" style="background:${svc.image};width:120px;height:120px;"></div></div></div>
+    <div class="form-row"><div class="form-label">二维码海报提示文案</div><div class="form-control"><input type="text" value="${svc.hint}" disabled /></div></div>
+  `;
+  showModal('查看客服二维码海报', body);
+}
+
+function editMiniappService(index) {
+  const svc = miniappServiceData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">二维码海报ID</div><div class="form-control"><input type="text" id="editSvcId" value="${svc.id}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">二维码海报名称</div><div class="form-control"><input type="text" id="editSvcName" value="${svc.name}" /></div></div>
+    <div class="form-row"><div class="form-label">二维码海报图片</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:${svc.image};width:120px;height:120px;" id="editSvcImagePreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('editSvcImageInput').click()">上传</button><input type="file" id="editSvcImageInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'editSvcImagePreview','editSvcImage')" /><input type="text" id="editSvcImage" value="${svc.image}" style="display:none" /></div></div></div>
+    <div class="form-row"><div class="form-label">提示文案</div><div class="form-control"><input type="text" id="editSvcHint" value="${svc.hint}" /></div></div>
+  `;
+  showModal('编辑客服二维码海报', body, () => saveMiniappService(index));
+}
+
+function saveMiniappService(index) {
+  const svc = miniappServiceData[index];
+  svc.name = document.getElementById('editSvcName').value;
+  svc.image = document.getElementById('editSvcImage').value;
+  svc.hint = document.getElementById('editSvcHint').value;
+  renderMain();
+}
+
+function addMiniappService() {
+  const body = `
+    <div class="form-row"><div class="form-label">二维码海报ID</div><div class="form-control"><input type="text" id="newSvcId" placeholder="例如：S004" /></div></div>
+    <div class="form-row"><div class="form-label">二维码海报名称</div><div class="form-control"><input type="text" id="newSvcName" placeholder="请输入名称" /></div></div>
+    <div class="form-row"><div class="form-label">二维码海报图片</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:transparent;width:120px;height:120px;" id="newSvcImagePreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('newSvcImageInput').click()">上传</button><input type="file" id="newSvcImageInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'newSvcImagePreview','newSvcImage')" /><input type="text" id="newSvcImage" style="display:none" value="linear-gradient(135deg,#2ba471,#00a2ff)" /></div></div></div>
+    <div class="form-row"><div class="form-label">提示文案</div><div class="form-control"><input type="text" id="newSvcHint" placeholder="例如：扫码添加客服" /></div></div>
+  `;
+  showModal('新增客服二维码海报', body, () => {
+    const id = document.getElementById('newSvcId').value.trim();
+    const name = document.getElementById('newSvcName').value.trim();
+    const image = document.getElementById('newSvcImage').value;
+    const hint = document.getElementById('newSvcHint').value.trim();
+    if (!id || !name) return;
+    miniappServiceData.push({ id, name, image, hint });
+    renderMain();
+  });
+}
+
+function deleteMiniappService(index) {
+  miniappServiceData.splice(index, 1);
+  renderMain();
+}
+
+function viewProfileItem(dataArr, index) {
+  const item = dataArr[index];
+  const lvl = memberLevelData.find(l => l.id === item.unlockLevel);
+  const g = profileGroupData.find(x => x.groupId === item.groupId);
+  const body = `
+    <div class="form-row"><div class="form-label">功能id</div><div class="form-control"><input type="text" value="${item.funcId || ''}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">功能组</div><div class="form-control"><input type="text" value="${g ? g.name + ' (' + item.groupId + ')' : item.groupId}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">工具图标</div><div class="form-control"><div class="icon-preview" style="background:${item.icon}"></div></div></div>
+    <div class="form-row"><div class="form-label">工具名称</div><div class="form-control"><input type="text" value="${item.name}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">上架状态</div><div class="form-control"><input type="text" value="${item.onShelf ? '已上架' : '已下架'}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">解锁等级</div><div class="form-control"><input type="text" value="${lvl ? lvl.name + ' (' + item.unlockLevel + ')' : item.unlockLevel}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">URL或调起功能</div><div class="form-control"><input type="text" value="${item.url}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">创建时间</div><div class="form-control"><input type="text" value="${item.created}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">最后更新时间</div><div class="form-control"><input type="text" value="${item.updated}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">操作人</div><div class="form-control"><input type="text" value="${item.operator}" disabled /></div></div>
+  `;
+  showModal('查看入口', body);
+}
+
+function editProfileItem(dataArr, index) {
+  const item = dataArr[index];
+  const idValue = item.funcId || '';
+  const levelOptions = memberLevelData.map(l => `<option value="${l.id}" ${item.unlockLevel === l.id ? 'selected' : ''}>${l.name} (${l.id})</option>`).join('');
+  const groupOptions = profileGroupData.map(g => `<option value="${g.groupId}" ${item.groupId === g.groupId ? 'selected' : ''}>${g.name} (${g.groupId})</option>`).join('');
+  const body = `
+    <div class="form-row"><div class="form-label">功能id</div><div class="form-control"><input type="text" id="editProId" value="${idValue}" /></div></div>
+    <div class="form-row"><div class="form-label">所属功能组</div><div class="form-control"><select id="editProGroupId">${groupOptions}</select></div></div>
+    <div class="form-row"><div class="form-label">工具图标</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:${item.icon}" id="editProIconPreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('editProIconInput').click()">上传</button><input type="file" id="editProIconInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'editProIconPreview','editProIcon')" /><input type="text" id="editProIcon" value="${item.icon}" style="display:none" /></div></div></div>
+    <div class="form-row"><div class="form-label">工具名称</div><div class="form-control"><input type="text" id="editProName" value="${item.name}" /></div></div>
+    <div class="form-row"><div class="form-label">上架开关</div><div class="form-control"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><span class="switch ${item.onShelf ? 'on' : ''}" id="editProSwitch" onclick="this.classList.toggle('on')"></span><span>启用</span></label></div></div>
+    <div class="form-row"><div class="form-label">解锁等级</div><div class="form-control"><select id="editProUnlockLevel">${levelOptions}</select></div></div>
+    <div class="form-row"><div class="form-label">URL或调起功能</div><div class="form-control"><input type="text" id="editProUrl" value="${item.url}" /></div></div>
+  `;
+  showModal('编辑入口', body, () => saveProfileItem(dataArr, index));
+}
+
+function saveProfileItem(dataArr, index) {
+  const item = dataArr[index];
+  if ('funcId' in item) item.funcId = document.getElementById('editProId').value;
+  item.groupId = document.getElementById('editProGroupId').value;
+  item.icon = document.getElementById('editProIcon').value;
+  item.name = document.getElementById('editProName').value;
+  item.onShelf = document.getElementById('editProSwitch').classList.contains('on');
+  item.unlockLevel = document.getElementById('editProUnlockLevel').value;
+  item.url = document.getElementById('editProUrl').value;
+  item.updated = new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-');
+  item.operator = '吴文强';
+  renderMain();
+}
+
+function toggleShelf(dataArr, index) {
+  dataArr[index].onShelf = !dataArr[index].onShelf;
+  renderMain();
+}
+
+function previewIconUpload(input, previewId, hiddenId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    const preview = document.getElementById(previewId);
+    if (preview) {
+      preview.style.background = 'url(' + url + ')';
+      preview.style.backgroundSize = 'cover';
+      preview.style.backgroundPosition = 'center';
+    }
+    const hidden = document.getElementById(hiddenId);
+    if (hidden) hidden.value = url;
+  };
+  reader.readAsDataURL(file);
+}
+
+
+function viewProfileGroup(index) {
+  const g = profileGroupData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">功能组id</div><div class="form-control"><input type="text" value="${g.groupId}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">功能组名称</div><div class="form-control"><input type="text" value="${g.name}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">功能组权重</div><div class="form-control"><input type="text" value="${g.weight}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">上架状态</div><div class="form-control"><input type="text" value="${g.onShelf ? '已上架' : '已下架'}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">创建时间</div><div class="form-control"><input type="text" value="${g.created}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">最后更新时间</div><div class="form-control"><input type="text" value="${g.updated}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">操作人</div><div class="form-control"><input type="text" value="${g.operator}" disabled /></div></div>
+  `;
+  showModal('查看功能组', body);
+}
+
+function editProfileGroup(index) {
+  const g = profileGroupData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">功能组id</div><div class="form-control"><input type="text" id="editGroupId" value="${g.groupId}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">功能组名称</div><div class="form-control"><input type="text" id="editGroupName" value="${g.name}" /></div></div>
+    <div class="form-row"><div class="form-label">功能组权重</div><div class="form-control"><input type="number" id="editGroupWeight" value="${g.weight}" /></div></div>
+    <div class="form-row"><div class="form-label">上架开关</div><div class="form-control"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><span class="switch ${g.onShelf ? 'on' : ''}" id="editGroupSwitch" onclick="this.classList.toggle('on')"></span><span>启用</span></label></div></div>
+  `;
+  showModal('编辑功能组', body, () => saveProfileGroup(index));
+}
+
+function saveProfileGroup(index) {
+  const g = profileGroupData[index];
+  g.name = document.getElementById('editGroupName').value;
+  g.weight = parseInt(document.getElementById('editGroupWeight').value, 10) || 0;
+  g.onShelf = document.getElementById('editGroupSwitch').classList.contains('on');
+  g.updated = new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-');
+  g.operator = '吴文强';
+  renderMain();
+}
+
+function addProfileGroup() {
+  const body = `
+    <div class="form-row"><div class="form-label">功能组id</div><div class="form-control"><input type="text" id="newGroupId" placeholder="例如：kefu" /></div></div>
+    <div class="form-row"><div class="form-label">功能组名称</div><div class="form-control"><input type="text" id="newGroupName" placeholder="请输入功能组名称" /></div></div>
+    <div class="form-row"><div class="form-label">功能组权重</div><div class="form-control"><input type="number" id="newGroupWeight" value="100" /></div></div>
+    <div class="form-row"><div class="form-label">上架开关</div><div class="form-control"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><span class="switch on" id="newGroupSwitch" onclick="this.classList.toggle('on')"></span><span>启用</span></label></div></div>
+  `;
+  showModal('新增功能组', body, () => {
+    const groupId = document.getElementById('newGroupId').value.trim();
+    const name = document.getElementById('newGroupName').value.trim();
+    const weight = parseInt(document.getElementById('newGroupWeight').value, 10) || 0;
+    const onShelf = document.getElementById('newGroupSwitch').classList.contains('on');
+    if (!groupId || !name) return;
+    profileGroupData.push({
+      groupId, name, weight, onShelf,
+      created: new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-'),
+      updated: new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-'),
+      operator: '吴文强'
+    });
+    renderMain();
+  });
+}
+
+function viewRewardPackage(index) {
+  const p = rewardPackageData[index];
+  const g = gameConfigData.find(x => x.gamecod === p.gameId);
+  const body = `
+    <div class="form-row"><div class="form-label">礼包ID</div><div class="form-control"><input type="text" value="${p.packageId}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">所属游戏</div><div class="form-control"><input type="text" value="${g ? g.name + ' (' + p.gameId + ')' : p.gameId}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">礼包名称</div><div class="form-control"><input type="text" value="${p.packageName}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">道具奖励详情</div><div class="form-control">
+      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--gray-6);border-radius:var(--border-radius);padding:8px;">
+        ${p.items.map((it, ii) => `
+          <div style="display:flex;gap:12px;padding:4px 0;font-size:13px;color:var(--gray-2);align-items:center;">
+            <span style="width:20px;text-align:center;color:var(--gray-4);">${ii+1}</span>
+            <span style="width:80px;">${it.name}</span>
+            <span style="width:80px;color:var(--gray-3);">${it.itemId}</span>
+            <span style="width:40px;color:var(--gray-3);">x${it.quantity}</span>
+            <div class="icon-preview icon-preview-sm" style="background:${it.icon}"></div>
+            <span style="width:60px;color:var(--gray-3);">权重:${it.weight}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  showModal('查看礼包', body);
+}
+
+function editRewardPackage(index) {
+  const p = rewardPackageData[index];
+  const gameOptions = gameConfigData.map(gc => `<option value="${gc.gamecod}" ${p.gameId === gc.gamecod ? 'selected' : ''}>${gc.name}</option>`).join('');
+  const body = `
+    <div class="form-row"><div class="form-label">礼包ID</div><div class="form-control"><input type="text" id="editPkgId" value="${p.packageId}" disabled /></div></div>
+    <div class="form-row"><div class="form-label">所属游戏</div><div class="form-control"><select id="editPkgGame">${gameOptions}</select></div></div>
+    <div class="form-row"><div class="form-label">礼包名称</div><div class="form-control"><input type="text" id="editPkgName" value="${p.packageName}" /></div></div>
+    <div class="form-row"><div class="form-label">礼包权重</div><div class="form-control"><input type="number" id="editPkgWeight" value="${p.weight}" /></div></div>
+    <div class="form-row"><div class="form-label">道具奖励详情</div><div class="form-control">
+      <div id="editPkgItems" style="max-height:300px;overflow-y:auto;border:1px solid var(--gray-6);border-radius:var(--border-radius);padding:8px;">
+        ${p.items.map((it, ii) => `
+          <div class="pkg-item-row" style="display:flex;gap:8px;align-items:center;padding:4px 0;">
+            <span style="width:20px;text-align:center;color:var(--gray-4);font-size:12px;">${ii+1}</span>
+            <input type="text" placeholder="道具名称" class="pkg-item-name" style="flex:1;" value="${it.name}" />
+            <input type="text" placeholder="道具ID" class="pkg-item-id" style="width:80px;" value="${it.itemId}" />
+            <input type="number" placeholder="数量" class="pkg-item-qty" style="width:60px;" value="${it.quantity}" />
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div class="icon-preview icon-preview-sm" style="background:${it.icon}"></div>
+              <input type="text" class="pkg-item-icon" style="width:100px;" value="${it.icon}" />
+              <button class="btn btn-primary btn-sm" onclick="uploadPkgItemIcon(this)">上传</button>
+              <input type="file" style="display:none" accept="image/*" onchange="previewPkgItemIcon(this)" />
+            </div>
+            <input type="number" placeholder="权重" class="pkg-item-weight" style="width:60px;" value="${it.weight}" />
+            <button class="btn btn-danger btn-sm" onclick="this.closest('.pkg-item-row').remove()">删除</button>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="addPkgItemRow()">+ 添加道具</button>
+    </div></div>
+  `;
+  showModal('编辑礼包', body, () => saveRewardPackage(index));
+}
+
+function addPkgItemRow() {
+  const container = document.getElementById('editPkgItems');
+  const idx = container.querySelectorAll('.pkg-item-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'pkg-item-row';
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px 0;';
+  div.innerHTML = `
+    <span style="width:20px;text-align:center;color:var(--gray-4);font-size:12px;">${idx}</span>
+    <input type="text" placeholder="道具名称" class="pkg-item-name" style="flex:1;" />
+    <input type="text" placeholder="道具ID" class="pkg-item-id" style="width:80px;" />
+    <input type="number" placeholder="数量" class="pkg-item-qty" style="width:60px;" value="1" />
+    <div style="display:flex;align-items:center;gap:4px;">
+      <div class="icon-preview icon-preview-sm" style="background:transparent"></div>
+      <input type="text" class="pkg-item-icon" style="width:100px;" />
+      <button class="btn btn-primary btn-sm" onclick="uploadPkgItemIcon(this)">上传</button>
+      <input type="file" style="display:none" accept="image/*" onchange="previewPkgItemIcon(this)" />
+    </div>
+    <input type="number" placeholder="权重" class="pkg-item-weight" style="width:60px;" />
+    <button class="btn btn-danger btn-sm" onclick="this.closest('.pkg-item-row').remove()">删除</button>
+  `;
+  container.appendChild(div);
+}
+
+function saveRewardPackage(index) {
+  const p = rewardPackageData[index];
+  p.gameId = document.getElementById('editPkgGame').value;
+  p.packageName = document.getElementById('editPkgName').value;
+  p.weight = parseInt(document.getElementById('editPkgWeight').value, 10) || 0;
+  p.items = [];
+  document.querySelectorAll('#editPkgItems .pkg-item-row').forEach(row => {
+    const name = row.querySelector('.pkg-item-name').value.trim();
+    const itemId = row.querySelector('.pkg-item-id').value.trim();
+    const quantity = parseInt(row.querySelector('.pkg-item-qty').value, 10) || 1;
+    const icon = row.querySelector('.pkg-item-icon').value.trim();
+    const weight = parseInt(row.querySelector('.pkg-item-weight').value, 10) || 0;
+    if (name && itemId) p.items.push({ name, itemId, quantity, icon, weight });
+  });
+  renderMain();
+}
+
+function uploadPkgItemIcon(btn) {
+  btn.nextElementSibling.click();
+}
+
+function previewPkgItemIcon(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    const container = input.closest('.pkg-item-row') || input.parentElement;
+    const preview = container.querySelector('.icon-preview');
+    if (preview) {
+      preview.style.background = 'url(' + url + ')';
+      preview.style.backgroundSize = 'cover';
+      preview.style.backgroundPosition = 'center';
+    }
+    const txt = container.querySelector('.pkg-item-icon');
+    if (txt) txt.value = url;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addRewardPackage() {
+  const gameOptions = gameConfigData.map(gc => `<option value="${gc.gamecod}">${gc.name}</option>`).join('');
+  const body = `
+    <div class="form-row"><div class="form-label">礼包ID</div><div class="form-control"><input type="text" id="newPkgId" placeholder="例如：P012" /></div></div>
+    <div class="form-row"><div class="form-label">所属游戏</div><div class="form-control"><select id="newPkgGame">${gameOptions}</select></div></div>
+    <div class="form-row"><div class="form-label">礼包名称</div><div class="form-control"><input type="text" id="newPkgName" placeholder="请输入礼包名称" /></div></div>
+    <div class="form-row"><div class="form-label">礼包权重</div><div class="form-control"><input type="number" id="newPkgWeight" value="100" /></div></div>
+    <div class="form-row"><div class="form-label">道具奖励详情</div><div class="form-control">
+      <div id="newPkgItems" style="max-height:200px;overflow-y:auto;border:1px solid var(--gray-6);border-radius:var(--border-radius);padding:8px;">
+        <div class="pkg-item-row" style="display:flex;gap:8px;align-items:center;padding:4px 0;">
+          <span style="width:20px;text-align:center;color:var(--gray-4);font-size:12px;">1</span>
+          <input type="text" placeholder="道具名称" class="pkg-item-name" style="flex:1;" />
+          <input type="text" placeholder="道具ID" class="pkg-item-id" style="width:80px;" />
+          <input type="number" placeholder="数量" class="pkg-item-qty" style="width:60px;" value="1" />
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div class="icon-preview icon-preview-sm" style="background:transparent"></div>
+            <input type="text" class="pkg-item-icon" style="width:100px;" />
+            <button class="btn btn-primary btn-sm" onclick="uploadPkgItemIcon(this)">上传</button>
+            <input type="file" style="display:none" accept="image/*" onchange="previewPkgItemIcon(this)" />
+          </div>
+          <input type="number" placeholder="权重" class="pkg-item-weight" style="width:60px;" />
+          <button class="btn btn-danger btn-sm" onclick="this.closest('.pkg-item-row').remove()">删除</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="addNewPkgItemRow()">+ 添加道具</button>
+    </div></div>
+  `;
+  showModal('新增礼包', body, () => {
+    const packageId = document.getElementById('newPkgId').value.trim();
+    const gameId = document.getElementById('newPkgGame').value;
+    const packageName = document.getElementById('newPkgName').value.trim();
+    const weight = parseInt(document.getElementById('newPkgWeight').value, 10) || 0;
+    if (!packageId || !packageName) return;
+    const items = [];
+    document.querySelectorAll('#newPkgItems .pkg-item-row').forEach(row => {
+      const name = row.querySelector('.pkg-item-name').value.trim();
+      const itemId = row.querySelector('.pkg-item-id').value.trim();
+      const quantity = parseInt(row.querySelector('.pkg-item-qty').value, 10) || 1;
+      const icon = row.querySelector('.pkg-item-icon').value.trim();
+      const w = parseInt(row.querySelector('.pkg-item-weight').value, 10) || 0;
+      if (name && itemId) items.push({ name, itemId, quantity, icon, weight: w });
+    });
+    rewardPackageData.push({ packageId, gameId, packageName, weight, items });
+    renderMain();
+  });
+}
+
+function addNewPkgItemRow() {
+  const container = document.getElementById('newPkgItems');
+  const idx = container.querySelectorAll('.pkg-item-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'pkg-item-row';
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px 0;';
+  div.innerHTML = `
+    <span style="width:20px;text-align:center;color:var(--gray-4);font-size:12px;">${idx}</span>
+    <input type="text" placeholder="道具名称" class="pkg-item-name" style="flex:1;" />
+    <input type="text" placeholder="道具ID" class="pkg-item-id" style="width:80px;" />
+    <input type="number" placeholder="数量" class="pkg-item-qty" style="width:60px;" value="1" />
+    <div style="display:flex;align-items:center;gap:4px;">
+      <div class="icon-preview icon-preview-sm" style="background:transparent"></div>
+      <input type="text" class="pkg-item-icon" style="width:100px;" />
+      <button class="btn btn-primary btn-sm" onclick="uploadPkgItemIcon(this)">上传</button>
+      <input type="file" style="display:none" accept="image/*" onchange="previewPkgItemIcon(this)" />
+    </div>
+    <input type="number" placeholder="权重" class="pkg-item-weight" style="width:60px;" />
+    <button class="btn btn-danger btn-sm" onclick="this.closest('.pkg-item-row').remove()">删除</button>
+  `;
+  container.appendChild(div);
+}
+
+
+function editGameConfig(index) {
+  const g = gameConfigData[index];
+  const body = `
+    <div class="form-row"><div class="form-label">游戏名称</div><div class="form-control"><input type="text" id="editGameName" value="${g.name}" /></div></div>
+    <div class="form-row"><div class="form-label">游戏权重</div><div class="form-control"><input type="number" id="editGameWeight" value="${g.weight}" /></div></div>
+    <div class="form-row"><div class="form-label">游戏图标</div><div class="form-control"><div style="display:flex;align-items:center;gap:8px;"><div class="icon-preview" style="background:${g.icon}" id="editGameIconPreview"></div><button class="btn btn-primary btn-sm" onclick="document.getElementById('editGameIconInput').click()">上传</button><input type="file" id="editGameIconInput" style="display:none" accept="image/*" onchange="previewIconUpload(this,'editGameIconPreview','editGameIcon')" /><input type="text" id="editGameIcon" value="${g.icon}" style="display:none" /></div></div></div>
+  `;
+  showModal('编辑游戏', body, () => {
+    g.name = document.getElementById('editGameName').value.trim();
+    g.weight = parseInt(document.getElementById('editGameWeight').value, 10) || 0;
+    g.icon = document.getElementById('editGameIcon').value.trim();
+    g.updated = new Date().toLocaleString('zh-CN', {hour12:false}).replace(/\//g,'-');
+    g.operator = '吴文强';
+    renderMain();
+  });
+}
+
+function deleteGameConfig(index) {
+  // 已禁用：游戏列表不支持删除
+}
+
+function toggleDefaultGame(index) {
+  gameConfigData.forEach((g, i) => { g.isDefault = i === index; });
+  renderMain();
+}
+
+// Top nav
+document.getElementById('headerNav').addEventListener('click', e => {
+  const tab = e.target.closest('.header-tab');
+  if (!tab) return;
+  document.querySelectorAll('.header-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  const topId = tab.dataset.top;
+  const group = menuData.find(g => g.id === topId);
+  if (group) {
+    selectMenu(group.children[0].id);
+  }
+});
+
+// Init
+renderAside();
+renderMain();
+</script>
+</body>
+</html>
